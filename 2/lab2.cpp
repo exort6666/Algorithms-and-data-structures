@@ -1,36 +1,41 @@
-﻿
-#include <iostream>
+﻿#include <iostream>
 #include <vector>
 #include <string>
 
-bool checkSkobochki(std::vector<char> & str)
+// 2+73*(32/9)-5=
+bool checkParentheses(std::vector<char> & str)//как в первой лабе
 {
-    int cnt = 0;
+    int unclosed = 0;
     for (int i = 0; i < str.size(); i++)
     {
-        if (str[i] == '(') { cnt += 1; }
-        else if (str[i] == ')') { cnt -= 1; }
-        if (cnt == -1) { break; }   
+        if (str[i] == '(')
+            unclosed += 1;
+        else if (str[i] == ')')
+            unclosed -= 1;
+        if (unclosed == -1)
+            break;
     }
-    if (cnt != 0 or str[str.size()-1] != '=') { return false; }
+    if (unclosed != 0 || str[str.size()-1] != '=')
+        return false;
     return true;
 }
 
-bool inalphabet(std::vector<char>& alphabet, char symbol)
+bool inalphabet(std::vector<char>& alphabet, char symbol) //проверка на содержания символа
 {
     for (int i = 0; i < alphabet.size(); i++)
     {
-        if (alphabet[i] == symbol) { return true; }
+        if (alphabet[i] == symbol)
+            return true;
     }
     return false;
 }
 
-int prior(char operand)
+int priority(char operand)
 {
     int out=0;
     switch (operand)
     {
-    case 43:   // сложение
+    case 43:  // сложение
         out = 1;
         break;
     case 45: // вычитание
@@ -53,37 +58,37 @@ int main()
     std::vector<char> signlist{'+', '-', '=', '*', '/', '(', ')'};
     std::vector<char> numberlist{'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
     std::vector<char> list;
-    
-    std::string s;
+
+    std::string stroka;
     std::cout << "Enter str: ";
-    std::cin >> s;
+    std::cin >> stroka;
     std::cout << std::endl;
     std::string tempNumber{};
-    
-    for (int i = 0; i < s.size(); i++)
+
+    for (int i = 0; i < stroka.size(); i++)
     {
-        if (i > 0 and inalphabet(signlist, s[i]) and inalphabet(signlist, s[i - 1]))
+        //Проверка на два знака подряд(кроме скобок)
+        if (i > 0 && inalphabet(signlist, stroka[i]) && inalphabet(signlist, stroka[i - 1]))
         {
-            if (not(s[i] == '(' or s[i - 1] == ')'))
+            if (!(stroka[i] == '(' || stroka[i - 1] == ')'))
             {
                 std::cout << "err: 2 signs in a row" << std::endl;
                 return -11111;
             }
         }
-
-        if (i > 0 and s[i - 1] == '/' and s[i] == '0') //деление на 0
+        //Проверка деления на 0
+        if (i > 0 && stroka[i - 1] == '/' && stroka[i] == '0')
         {
             std::cout << "err: zero division" << std::endl;
             return -11111;
         }
-
-        if (not(inalphabet(signlist, s[i]) or inalphabet(numberlist, s[i]))) // символа не должно быть по условию
+        //Проверка на то,существуют ли помимо чисел и нужных знаков другие ненужные символы
+        if (!(inalphabet(signlist, stroka[i]) || inalphabet(numberlist, stroka[i])))
         {
             std::cout << "err: intorrect symbol" << std::endl;
             return -11111;
         }
-
-        if (inalphabet(signlist, s[i]))
+        if (inalphabet(signlist, stroka[i]))
         {
             if (tempNumber.size() != 0)
             {
@@ -92,33 +97,35 @@ int main()
                 list.push_back((char)tint);
                 tempNumber.clear(); // Очистим tempNumber для следующего числа
             }            
-            list.push_back(s[i]);           
+            list.push_back(stroka[i]);           
         }      
-        if (inalphabet(numberlist, s[i])) {  tempNumber.push_back(s[i]);  }
+        if (inalphabet(numberlist, stroka[i])) {  tempNumber.push_back(stroka[i]);  }
     }
-
-    if (not checkSkobochki(list)) // любая ошибка связанная со скобками
+    //Проверка на скобки
+    if (!(checkParentheses(list)))
     {
         std::cout << "Error : ()";
         return -11111;
     }
+
+
     std::vector<float> numbersQ;
     int numberQtop = -1;
 
     std::vector<char> signQ;
     int signQtop = -1;
     int countskob = 0;
-    
+
     for (int i = 0; i < list.size()-1; i++)
     {
-        if (not inalphabet(signlist, list[i]))
+        if (!(inalphabet(signlist, list[i])))
         {
             numbersQ.push_back(float(list[i]));
             numberQtop += 1;
         }
         else
         {
-            if (list[i] == '(' or signQtop == -1 ) //отдельная обработка скобок тк у них нет присвоенного приоритета
+            if (list[i] == '(' || signQtop == -1 ) //отдельная обработка скобок тк у них нет присвоенного приоритета
             {
                 signQ.push_back(list[i]);
                 signQtop += 1;
@@ -127,15 +134,15 @@ int main()
                     countskob += 1;
                 }
             }
-            
+
             else  // проверка на наличие 2 элементов в стеке с числами заведомо выполнится
             {
-                if (signQ[signQtop] == '(' or (signQ[signQtop] != '(' and list[i] != ')' and (prior(list[i]) > prior(signQ[signQtop]))))
+                if (signQ[signQtop] == '(' || (signQ[signQtop] != '(' && list[i] != ')' && (priority(list[i]) > priority(signQ[signQtop]))))
                 {
                     signQ.push_back(list[i]);
                     signQtop += 1;
                 }
-                
+
                 else if ( list[i] == ')') 
                 {
                     while (signQ[signQtop] != '(')
@@ -153,7 +160,7 @@ int main()
                         int maxPrior = 0;
                         for (int k = pointer+1; k < signQ.size(); k++)
                         {
-                            if (prior(signQ[k - 1]) <= prior(signQ[k]))
+                            if (priority(signQ[k - 1]) <= priority(signQ[k]))
                             {
                                 maxPrior = k; // оператор максимального приоритета
                             }
@@ -190,7 +197,7 @@ int main()
                     }
 
                     signQ.pop_back();
-                    
+
                     countskob -= 1;
                     signQtop -= 1;
                 }
@@ -223,19 +230,19 @@ int main()
                     }
                     numbersQ.push_back(tempout);
                     numberQtop -= 1;
-                    
+
                     signQ[signQtop] = list[i]; // инд не изменится
                 }               
             }           
         }      
     }
-    
+
     while (numberQtop != 0)
     {
         int maxPrior = 0;
         for (int i = 1; i < signQ.size(); i++)
         {
-            if (prior(signQ[i - 1]) <= prior(signQ[i]))
+            if (priority(signQ[i - 1]) <= priority(signQ[i]))
             {
                 maxPrior = i;
             }
@@ -270,10 +277,7 @@ int main()
         signQtop -= 1;
         signQ.erase(signQ.begin() + maxPrior);
     }
-   
-    std::cout << "answer " <<numbersQ[0];
+
+    std::cout << "Answer = " <<numbersQ[0];
     return 0;
-
 }
-
-

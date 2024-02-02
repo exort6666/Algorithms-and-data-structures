@@ -1,113 +1,109 @@
-п»ї//РІРЅРµС€РЅСЏСЏ РјРЅРѕРіРѕС„Р°Р·РЅР°СЏ
+#include <iostream>
 #include <fstream>
+#include <vector>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <random>
 
-int main()
-{
-    std::ifstream in, in1, in2;
-    std::ofstream out, out1, out2;
+// Функция для генерации входного файла со случайными числами
+void generateInputFile(const std::string& inputFileName, int totalNumbers) {
+    std::ofstream inputFile(inputFileName);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> dis(1, 100);
 
-    int a, b, size = 0, countA, countB, count;
-    bool flag = true, Afull, Bfull;
-
-    in.open("input.txt");
-    out.open("result.txt");
-    while (in >> a) // СЃС‡РёС‚С‹РІР°СЋ СЂР°Р·РјРµСЂ РјР°СЃСЃРёРІР°
-    {
-        out << a << " ";
-        size++;
+    for (int i = 0; i < totalNumbers; ++i) {
+        inputFile << dis(gen) << " ";
     }
-    in.close();
-    out.close();
-    /*РґР»РёРЅР° СЃРµСЂРёР№ С„РёРєСЃРёСЂСѓРµС‚СЃСЏ РЅР° РєР°Р¶РґРѕРј С€Р°РіРµ.
-    Р’ РёСЃС…РѕРґРЅРѕРј С„Р°Р№Р»Рµ РІСЃРµ СЃРµСЂРёРё РёРјРµСЋС‚ РґР»РёРЅСѓ 1,
-    РїРѕСЃР»Рµ РїРµСЂРІРѕРіРѕ С€Р°РіР° РѕРЅР° СЂР°РІРЅР° 2, РїРѕСЃР»Рµ РІС‚РѕСЂРѕРіРѕ вЂ“ 4,
-    РїРѕСЃР»Рµ С‚СЂРµС‚СЊРµРіРѕ вЂ“ 8, РїРѕСЃР»Рµ k -РіРѕ С€Р°РіР° вЂ“ 2k*/
-    for (int partSize = 1; partSize < size; partSize *= 2)
-    {
-        //РСЃС…РѕРґРЅС‹Р№ С„Р°Р№Р» f СЂР°Р·Р±РёРІР°РµС‚СЃСЏ РЅР° РґРІР° РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С„Р°Р№Р»Р° 
-        in.open("result.txt");
-        out1.open("A.txt");
-        out2.open("B.txt");
-        count = 0;
-        while (in >> a)
-        {
-            count++;
-            if (flag) out1 << a << " ";
-            else
-                out2 << a << " ";
-            if (count == partSize)
-            {
-                count = 0;
-                flag = !flag;
+}
+
+// Функция для разделения входного файла на отдельные фрагменты и их сортировки
+void splitAndSortChunks(const std::string& inputFileName, int chunkSize) {
+    std::ifstream inputFile(inputFileName);
+    int chunkNumber = 1;
+
+    while (!inputFile.eof()) {
+        std::vector<int> chunk;
+        chunk.reserve(chunkSize);
+
+        for (int i = 0; i < chunkSize; ++i) {
+            int number;
+            if (inputFile >> number) {
+                chunk.push_back(number);
+            }
+            else {
+                break;
             }
         }
-        in.close();
-        out1.close();
-        out2.close();
 
-        in1.open("A.txt");
-        in2.open("B.txt");
-        out.open("result.txt");
-        //РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„Р°Р№Р»С‹ СЃР»РёРІР°СЋС‚СЃСЏ РІ С„Р°Р№Р» 
-        // РїСЂРё СЌС‚РѕРј РѕРґРёРЅРѕС‡РЅС‹Рµ СЌР»РµРјРµРЅС‚С‹ РѕР±СЂР°Р·СѓСЋС‚ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Рµ РїР°СЂС‹.
-        if (in1 >> a)
-            Afull = true;
-        else
-            Afull = false;
-        if (in2 >> b)
-            Bfull = true;
-        else
-            Bfull = false;
-        //РџРѕР»СѓС‡РµРЅРЅС‹Р№ С„Р°Р№Р»  РІРЅРѕРІСЊ РѕР±СЂР°Р±Р°С‚С‹РІР°РµС‚СЃСЏ
-        //РџСЂРё СЌС‚РѕРј СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Рµ РїР°СЂС‹ РїРµСЂРµС…РѕРґСЏС‚ РІ СѓРїРѕСЂСЏРґРѕС‡РµРЅРЅС‹Рµ С‡РµС‚РІРµСЂРєРё.
-        for (int i = 0; i < size; i += 2 * partSize)
-        {
-            countA = 0; countB = 0;
-            while (countA < partSize && Afull && countB < partSize && Bfull)
-                if (a < b)
-                {
-                    out << a << " ";
-                    if (in1 >> a)
-                        Afull = true;
-                    else
-                        Afull = false;
-                    countA++;
-                }
-                else
-                {
-                    out << b << " ";
-                    if (in2 >> b)
-                        Bfull = true;
-                    else
-                        Bfull = false;
-                    countB++;
-                }
-            //РџРѕРІС‚РѕСЂСЏСЏ С€Р°РіРё, СЃР»РёРІР°РµРј С‡РµС‚РІРµСЂРєРё РІ РІРѕСЃСЊРјРµСЂРєРё Рё С‚.Рґ.,
-            //РєР°Р¶РґС‹Р№ СЂР°Р· СѓРґРІР°РёРІР°СЏ РґР»РёРЅСѓ СЃР»РёС‚С‹С… РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅРѕСЃС‚РµР№ РґРѕ С‚РµС… РїРѕСЂ, РїРѕРєР° РЅРµ Р±СѓРґРµС‚ СѓРїРѕСЂСЏРґРѕС‡РµРЅ С†РµР»РёРєРѕРј РІРµСЃСЊ С„Р°Р№Р»
-            while (countA < partSize && Afull)
-            {
-                out << a << " ";
-                if (in1 >> a)
-                    Afull = true;
-                else
-                    Afull = false;
-                countA++;
-            }
-            while (countB < partSize && Bfull)
-            {
-                out << b << " ";
-                if (in2 >> b)
-                    Bfull = true;
-                else
-                    Bfull = false;
-                countB++;
-            }
+        std::sort(chunk.begin(), chunk.end());
 
+        std::ofstream outputFile("chunk" + std::to_string(chunkNumber++) + ".txt");
+        std::copy(chunk.begin(), chunk.end(), std::ostream_iterator<int>(outputFile, " "));
+    }
+}
+
+// Функция для объединения отсортированных фрагментов в окончательный выходной файл
+void mergeChunks(const std::string& outputFileName, int chunkSize, int totalChunks) {
+    std::vector<std::ifstream> chunkFiles;
+    chunkFiles.reserve(totalChunks);
+
+    for (int i = 1; i <= totalChunks; ++i) {
+        chunkFiles.emplace_back("chunk" + std::to_string(i) + ".txt");
+    }
+
+    std::vector<int> chunkBuffer(chunkSize);
+    std::vector<bool> chunkEmpty(totalChunks, false);
+    std::ofstream outputFile(outputFileName);
+
+    while (true) {
+        int minChunkIndex = -1;
+        for (int i = 0; i < totalChunks; ++i) {
+            if (!chunkEmpty[i]) {
+                if (minChunkIndex == -1 || chunkBuffer[i] < chunkBuffer[minChunkIndex]) {
+                    minChunkIndex = i;
+                }
+            }
         }
 
-        in1.close();
-        in2.close();
-        out.close();
+        if (minChunkIndex == -1) {
+            // Все файлы объединены
+            break;
+        }
+
+        outputFile << chunkBuffer[minChunkIndex] << " ";
+
+        if (chunkFiles[minChunkIndex] >> chunkBuffer[minChunkIndex]) {
+            chunkEmpty[minChunkIndex] = false;
+        }
+        else {
+            chunkEmpty[minChunkIndex] = true;
+        }
     }
-    return 0;
+
+    // Закрытие всех файлов
+    for (auto& chunkFile : chunkFiles) {
+        chunkFile.close();
+    }
+}
+
+void multiPhaseSort(const std::string& inputFileName, const std::string& outputFileName, int chunkSize) {
+    splitAndSortChunks(inputFileName, chunkSize);
+
+    //Считает количество кусков,на которые делит
+    std::ifstream inputFile(inputFileName);
+    int totalNumbers = std::distance(std::istream_iterator<int>(inputFile), std::istream_iterator<int>());
+    int totalChunks = (totalNumbers + chunkSize - 1) / chunkSize;
+
+    mergeChunks(outputFileName, chunkSize, totalChunks);
+}
+
+void main() {
+    std::string inputFileName = "input.txt";
+    std::string outputFileName = "output.txt";
+    int chunkSize = 5;
+    int totalNumbers = 20;
+    generateInputFile(inputFileName, totalNumbers);
+    multiPhaseSort(inputFileName, outputFileName, chunkSize);
 }

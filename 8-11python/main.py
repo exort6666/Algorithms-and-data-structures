@@ -1,5 +1,5 @@
 from random import randint #выбираем рандомное число
-def radix_sort(mass): #поразрядная
+def radix_sort(mass): #поразрядная/корневая
     mas = [str(x) for x in mass]
     max_razr = max(x for x in [len(y) for y in mas])
     for i in range(max_razr):
@@ -47,6 +47,7 @@ def heap_sort(mas):
     for i in range(cur_heap_size - 1, 0, -1):
         mas[i], mas[0] = mas[0], mas[i]
         heapswap(mas,0,i)
+    return (mas)
 ##########################################################
 def merge_sort(mas):
     if (0 <= len(mas) <= 1):
@@ -84,9 +85,9 @@ mas = [randint(-1000, 1000) for i in range(10)]
 print(mas)
 
 #mas_sorted = radix_modif(mas)
-#mas_sorted = heap_sort(mas)
+mas_sorted = heap_sort(mas)
 #mas_sorted = merge_sort(mas)
-mas_sorted = q_sort(mas)
+#mas_sorted = q_sort(mas)
 
 print(mas_sorted)
 #print(mas)
